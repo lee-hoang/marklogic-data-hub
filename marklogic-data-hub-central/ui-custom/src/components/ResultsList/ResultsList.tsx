@@ -147,12 +147,14 @@ const ResultsList: React.FC<Props> = (props) => {
     let titleValue = results?.uri ? results?.uri : "No record URI";
     let matchValue = results?.snippet?.match["#text"] ? results?.snippet?.match["#text"] : "";
     return (
-      <div key={"result-" + index} className="result">
-        <div className="details">
-           <div className="title no-entity" onClick={handleNameClick}><Value id={results?.uri}>{titleValue}</Value></div>
+      <tr key={"result-" + index} className="result">
+        <td>
+            <div className="details">
+                <div className="title no-entity" onClick={handleNameClick}><Value id={results?.uri}>{titleValue}</Value></div>
                 <div className="subtitle no-entity"><ResultSnippet config={{}} data={results} /></div>
             </div>
-        </div>
+        </td>
+      </tr>
     )
   }
 
@@ -169,7 +171,8 @@ const ResultsList: React.FC<Props> = (props) => {
         return getResultNoEntity(results, index);
       }
       let defaultIcon = props.config.defaultIcon
-      let iconElement = (configEntityType && configEntityType.icon) ? FaDictionary[configEntityType.icon.type] : FaDictionary[defaultIcon.type];
+      let iconElement = (configEntityType && configEntityType.icon) ? FaDictionary[configEntityType.icon.type] : 
+                            defaultIcon ? FaDictionary[defaultIcon.type] : null;
       let titleValue = getValByConfig(results, configEntityType.title, true);
       if (!titleValue) {
         if (results?.uri) {
@@ -178,16 +181,18 @@ const ResultsList: React.FC<Props> = (props) => {
       }
       return (
         <tr key={"result-" + index} className="result">
-          <td width={20}>
-            {<div className="entityIcon" data-testid={"entity-icon-" + index}><FontAwesomeIcon icon={iconElement} color={configEntityType.icon ? configEntityType.icon.color : defaultIcon.color} /></div>}
-          </td>
-          <td width={70}>
-            <div className="thumbnail">
-              {configEntityType.thumbnail ?
-                <Image data={results} config={configEntityType.thumbnail.config} />
-                : null}
-            </div>
-          </td>
+            {iconElement ?
+                <td width={20} className="icon-cell">
+                        <div className="entityIcon" data-testid={"entity-icon-" + index}><FontAwesomeIcon icon={iconElement} color={configEntityType.icon ? configEntityType.icon.color : defaultIcon.color} /></div>
+                </td>
+            : null}
+            {configEntityType.thumbnail ?
+                <td width={70} className="thumbnail-cell">
+                    <div className="thumbnail">
+                        <Image data={results} config={configEntityType.thumbnail.config} />
+                    </div>
+                </td>
+            : null}
           <td className="details py-2">
             <Row className="p-0">
               <Col xl={6}>
@@ -216,24 +221,26 @@ const ResultsList: React.FC<Props> = (props) => {
                 : null}
             </div>
           </td>
-          <td className="actions align-top">
-            {configEntityType.timestamp ?
-              <div className="timestamp">
-                <DateTime config={configEntityType.timestamp} data={results} style={configEntityType.timestamp.style} />
-              </div> : null}
-            <div className="icons">
-              {configEntityType.status ?
-                <div className="status">
-                  <Value data={results} config={configEntityType.status} getFirst={true} />
+          {configEntityType.timestamp || configEntityType.status || configEntityType.resultActions ?
+            <td className="actions align-top">
+                {configEntityType.timestamp ?
+                <div className="timestamp">
+                    <DateTime config={configEntityType.timestamp} data={results} style={configEntityType.timestamp.style} />
                 </div> : null}
-              {configEntityType.resultActions?.component ?
-                React.createElement(
-                  COMPONENTS[configEntityType.resultActions.component],
-                  { config: configEntityType?.resultActions.config, data: results?.extracted }, null
-                )
-                : null}
-            </div>
-          </td>
+                <div className="icons">
+                {configEntityType.status ?
+                    <div className="status">
+                    <Value data={results} config={configEntityType.status} getFirst={true} />
+                    </div> : null}
+                {configEntityType.resultActions?.component ?
+                    React.createElement(
+                    COMPONENTS[configEntityType.resultActions.component],
+                    { config: configEntityType?.resultActions.config, data: results?.extracted }, null
+                    )
+                    : null}
+                </div>
+            </td>
+          : null}
         </tr>
       );
     });
@@ -248,7 +255,9 @@ const ResultsList: React.FC<Props> = (props) => {
           {props?.config?.sort && Object.keys(props.config.sort).length !== 0 && getSort()}
            
             <Table responsive hover>
-              {getResults()}
+                <tbody>
+                    {getResults()}
+                </tbody>
             </Table>
          
           <div className="pt-4">

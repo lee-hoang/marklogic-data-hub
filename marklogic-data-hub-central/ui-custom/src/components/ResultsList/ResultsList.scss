@@ -42,6 +42,14 @@
         background-color: #ebf9f6;
     }
     .result {
+        td.icon-cell {
+            vertical-align: middle;
+            text-align: center;
+        }
+        td.thumbnail-cell {
+            vertical-align: middle;
+            text-align: center;
+        }
         &:not(:first-child) {
             border-top:1px solid #ccc;
         }
@@ -52,7 +60,6 @@
             img {
                 width: 48px;
                 height: 48px;
-                margin-right: 20px;
                 border-radius: 4px;
             }
         }
